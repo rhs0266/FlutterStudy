@@ -27,6 +27,17 @@ class NamerAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class NamerPage extends StatelessWidget {
@@ -36,6 +47,11 @@ class NamerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<NamerAppState>();
     var pair = appState.current;
+    var icon = appState.favorites.contains(pair)
+        ? Icons.favorite
+        : Icons.favorite_border;
+
+    print(appState.favorites);
 
     return Scaffold(
       body: Center(
@@ -44,11 +60,20 @@ class NamerPage extends StatelessWidget {
           children: [
             BigCard(pair: pair),
             const SizedBox(height: 20),
-            ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: const Text('Next'))
+            Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: const Text('Like')),
+              const SizedBox(width: 20),
+              ElevatedButton(
+                  onPressed: () {
+                    appState.getNext();
+                  },
+                  child: const Text('Next'))
+            ])
           ],
         ),
       ),
