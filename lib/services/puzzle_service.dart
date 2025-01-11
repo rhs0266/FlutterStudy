@@ -7,7 +7,7 @@ class PuzzleService {
 
   Puzzle generatePuzzle() {
     List<int> numbers = List.generate(4, (_) => _random.nextInt(10));
-    List<String> operators = ['+', '-', '*', '/'];
+    List<String> operators = ['+', '-', '*', '/', '(', ')'];
     int target = _random.nextInt(20) + 1; // 1~20 사이 목표값
     return Puzzle(numbers: numbers, operators: operators, target: target);
   }

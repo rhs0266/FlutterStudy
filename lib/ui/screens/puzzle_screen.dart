@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_drive/controllers/puzzle_controller.dart';
 
-class PuzzleScreen extends StatelessWidget {
+class PuzzleScreen extends StatefulWidget {
+  @override
+  _PuzzleScreenState createState() => _PuzzleScreenState();
+}
+
+class _PuzzleScreenState extends State<PuzzleScreen> {
+  List<String> equation = []; // 드롭된 요소를 저장할 리스트
   final PuzzleController _controller = Get.put(
     PuzzleController(),
     tag: 'puzzle_controller',
@@ -19,32 +25,63 @@ class PuzzleScreen extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Target: ${_controller.currentPuzzle.target}',
-              style: Theme.of(context).textTheme.displayLarge,
+            // 목표값 표시
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Target: ${_controller.currentPuzzle.target}',
+                style: Theme.of(context).textTheme.displayLarge,
+              ),
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
+            // 식 드롭존
+            DragTarget<String>(
+              builder: (context, candidateData, rejectedData) {
+                return Container(
+                  height: 50,
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Center(
+                    child: Text(
+                      equation.isNotEmpty ? equation.join(' ') : 'Drop Here',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                );
+              },
+              onAcceptWithDetails: (data) {
+                _controller.addInput(data.data.toString());
+                setState(() {
+                  equation.add(data.data.toString());
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            // 초기 숫자 및 연산자 배열
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: _controller.currentPuzzle.numbers
-                  .map((number) => ElevatedButton(
-                        onPressed: () =>
-                            _controller.addInput(number.toString()),
-                        child: Text('$number'),
+                  .map((number) => Draggable<String>(
+                        data: number.toString(),
+                        feedback: _buildDraggableItem(number.toString()),
+                        child: _buildDraggableItem(number.toString()),
                       ))
                   .toList(),
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
+            // 연산자 배열
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: _controller.currentPuzzle.operators
-                  .map((operator) => ElevatedButton(
-                        onPressed: () => _controller.addInput(operator),
-                        child: Text(operator),
+                  .map((operator) => Draggable<String>(
+                        data: operator,
+                        feedback: _buildDraggableItem(operator),
+                        child: _buildDraggableItem(operator),
                       ))
                   .toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
               'Your Solution: ${_controller.userSolution.join()}',
               style: Theme.of(context).textTheme.bodyLarge,
@@ -74,8 +111,26 @@ class PuzzleScreen extends StatelessWidget {
         onPressed: () {
           renderResult.value = false;
           _controller.generateNewPuzzle();
+          setState(() {
+            equation.clear();
+          });
         },
         child: const Icon(Icons.refresh),
+      ),
+    );
+  }
+
+  Widget _buildDraggableItem(String text) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.blueAccent,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 18),
       ),
     );
   }
