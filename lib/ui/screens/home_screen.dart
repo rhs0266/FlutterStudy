@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_drive/app/app_routes.dart';
+import 'package:test_drive/ui/widgets/custom_button.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -10,14 +11,19 @@ class HomeScreen extends StatelessWidget {
         title: Text('home_title'.tr),
       ),
       body: Center(
-        child: ElevatedButton(
+          child: Column(children: [
+        CustomButton(
+            onPressed: () {
+              Get.toNamed(AppRoutes.puzzle);
+            },
+            text: 'go_to_puzzle'.tr),
+        CustomButton(
           onPressed: () {
-            Get.updateLocale(Locale('ko', 'KR'));
             Get.toNamed(AppRoutes.settings);
           },
-          child: Text('go_to_settings'.tr),
-        ),
-      ),
+          text: 'go_to_settings'.tr,
+        )
+      ])),
     );
   }
 }
